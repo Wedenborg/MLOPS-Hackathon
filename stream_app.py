@@ -59,6 +59,10 @@ with tab2:
         img = Image.open(BytesIO(response.content))
         st.image(img, use_container_width=True)
 
+        st.header("### Key Learnings")
+        st.write("We tried first with a LSTM model, but it could not be compressed")
+
+
     elif sub_tab == "Training Metrics":
         st.header("Model Training & Optimization")
         st.write("Information about model architecture, hyperparameters, and training results.")
@@ -67,6 +71,29 @@ with tab2:
         loss_df = pd.read_csv("data/loss_history.csv").rename(columns={"loss": "Loss"}).reset_index().rename(columns={"index": "Epoch"})
         st.subheader("Training Loss Over Epochs")
         st.line_chart(loss_df.set_index("Epoch"))
+
+        # ---------- Metrics ----------
+        metrics = pd.DataFrame({
+            "Metric": ["Model size before compression [KB]", "Model size after compression [KB]"],
+            "Value": [400, 60],
+            "Emoji": ["💾", "🗜️"]
+        })
+
+        st.subheader("Model Sizes Overview")
+
+        # Maximum value for relative bar
+        max_val = metrics["Value"].max()
+
+        # Create columns for each metric
+        cols = st.columns(len(metrics))
+        for col, (_, row) in zip(cols, metrics.iterrows()):
+            # Display emoji + value
+            col.markdown(f"### {row['Emoji']} {row['Value']} KB")
+            # Display description
+            col.caption(row['Metric'])
+            # Show relative compression as a horizontal bar
+            col.progress(row['Value'] / max_val)
+
 
     elif sub_tab == "Carbon Footprint":
         df = pd.read_csv("emissions.csv")  # replace with your actual path
@@ -114,13 +141,7 @@ with tab2:
         ).properties(title="🌱 Energy Breakdown by Component")
         st.altair_chart(energy_chart, use_container_width=True)
 
-        # Model metrics table
-        metrics = pd.DataFrame({
-            "Metric": ["Accuracy", "Precision", "Recall", "F1-score"],
-            "Value": [0.92, 0.89, 0.91, 0.90]
-        })
-        st.subheader("Model Metrics")
-        st.table(metrics)
+        
 
 
 """

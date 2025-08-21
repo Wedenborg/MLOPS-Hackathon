@@ -2,7 +2,6 @@ import streamlit as st
 import time
 import pandas as pd
 import serial
-import serial.tools.list_ports
 
 # FSM:
 # Send nothing while waiting for audio
@@ -15,11 +14,30 @@ def list_com_ports():
     ports = serial.tools.list_ports.comports()
     return [port.device for port in ports]
 
+def add_banner():
+    custom_html = """
+    <div class="banner">
+    <img src="https://img.freepik.com/premium-photo/wide-banner-with-many-random-square-hexagons-charcoal-dark-black-color_105589-1820.jpg" alt="Banner Image">
+    </div>
+    <style>
+    .banner {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    }
+    .banner img {
+    width: 100%;
+    object-fit: cover;
+    }
+    </style>
+    """
+    st.components.v1.html(custom_html, height=200)
 
 if __name__ == "__main__":
     dataRec = False
     prevGesture = None
 
+    add_banner()
     st.write("Welcome to the explorer; your new favourite hike companion app!")
 
     ports = list_com_ports()

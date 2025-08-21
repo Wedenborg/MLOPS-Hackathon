@@ -2,6 +2,7 @@
 #include <PDM.h>
 #include <Arduino_HS300x.h>    // Temperature/Humidity (HS3003)
 #include <Arduino_LPS22HB.h>   // Barometer (LPS22HB)
+#include <Arduino_APDS9960.h>
 
 // Audio buffer
 short sampleBuffer[256];
@@ -26,7 +27,12 @@ void setup() {
     Serial.println("LPS22HB NOT found!");
   }
 
-  Serial.println("MicAmp,Ax,Ay,Az,TempHS,HumHS,TempBaro,Pressure");
+  // --- APDS ---
+  if (!APDS.begin()) {
+    Serial.println("Error initializing APDS9960 sensor!");
+  }
+
+  Serial.println("MicAmp,Ax,Ay,Az,TempHS,HumHS,TempBaro,Pressure, gestures");
 }
 
 void loop() {
@@ -76,6 +82,34 @@ void loop() {
   Serial.print(humHS); Serial.print(",");
   Serial.print(tempBaro); Serial.print(",");
   Serial.println(pressure);
+
+  // --- Detect Gesture ---
+  Serial.println("Detecting gestures");
+  while(!APDS.gestureAvailable()){};
+  if (APDS.gestureAvailable()) {
+    // a gesture was detected, read and print to serial monitor
+    int gesture = APDS.readGesture();   
+    switch (gesture) {
+      case GESTURE_UP:
+        Serial.println("Detected UP gesture");
+        delay(1000);
+        break;
+      case GESTURE_DOWN:
+        Serial.println("Detected DOWN gesture");
+        delay(1000);
+        break;
+      case GESTURE_LEFT:
+        Serial.println("Detected LEFT gesture");
+        delay(1000);
+        break;
+      case GESTURE_RIGHT:
+        Serial.println("Detected RIGHT gesture");
+        delay(1000);
+        break;
+      default:
+        break;
+    }
+  }
 
   delay(200);
 }

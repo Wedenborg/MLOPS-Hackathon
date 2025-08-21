@@ -10,6 +10,8 @@ Sensor libraries needed:
 
 #include <Arduino_APDS9960.h>
 
+#include <ArduinoBLE.h>
+
 Sensors:
 Gesture / Proximity: APDS9960
 Microphone: MP34DT06JTR

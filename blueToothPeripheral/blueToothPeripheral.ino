@@ -12,53 +12,50 @@
 */
 
 #include <ArduinoBLE.h>
+#include <Arduino_HS300x.h>
       
-enum {
-  GESTURE_NONE  = -1,
-  GESTURE_UP    = 0,
-  GESTURE_DOWN  = 1,
-  GESTURE_LEFT  = 2,
-  GESTURE_RIGHT = 3
-};
-
 const char* deviceServiceUuid = "19b10000-e8f2-537e-4f6c-d104768a1812";
 const char* deviceServiceCharacteristicUuid = "19b10001-e8f2-537e-4f6c-d104768a1812";
 
-int gesture = -1;
 
-BLEService gestureService(deviceServiceUuid); 
-BLEByteCharacteristic gestureCharacteristic(deviceServiceCharacteristicUuid, BLERead | BLEWrite);
+// Collect is a flag for when to sample data
+BLEService collect(deviceServiceUuid); 
+BLEByteCharacteristic collectCharacteristic(deviceServiceCharacteristicUuid, BLERead | BLEWrite);
+
+// Readings
+BLEByteCharacteristic latestPredictions(deviceServiceCharacteristicUuid, BLERead | BLEWrite)
 
 
 void setup() {
-  Serial.begin(9600);
-  while (!Serial);  
-  
-  pinMode(LEDR, OUTPUT);
-  pinMode(LEDG, OUTPUT);
-  pinMode(LEDB, OUTPUT);
-  pinMode(LED_BUILTIN, OUTPUT);
-  
-  digitalWrite(LEDR, HIGH);
-  digitalWrite(LEDG, HIGH);
-  digitalWrite(LEDB, HIGH);
-  digitalWrite(LED_BUILTIN, LOW);
+    Serial.begin(9600);
+    while (!Serial);  
 
-  
-  if (!BLE.begin()) {
+    // --- IMU ---
+    if (!IMU.begin()) {
+    Serial.println("Failed to initialize BMI270/BMM150!");
+    while (1);
+    }
+
+    // --- HS3003 ---
+    if (!HS300x.begin()) {
+        Serial.println("HS3003 NOT found!");
+    }
+
+    if (!BLE.begin()) {
     Serial.println("- Starting Bluetooth® Low Energy module failed!");
     while (1);
-  }
+    }
 
-  BLE.setLocalName("Arduino Nano 33 BLE (Peripheral)");
-  BLE.setAdvertisedService(gestureService);
-  gestureService.addCharacteristic(gestureCharacteristic);
-  BLE.addService(gestureService);
-  gestureCharacteristic.writeValue(-1);
-  BLE.advertise();
+    BLE.setLocalName("Arduino Nano 33 BLE (Peripheral)");
+    // Update this when we have a model
+    // BLE.setAdvertisedService(gestureService);
+    // gestureService.addCharacteristic(gestureCharacteristic);
+    // BLE.addService(gestureService);
+    gestureCharacteristic.writeValue(-1);
+    BLE.advertise();
 
-  Serial.println("Nano 33 BLE (Peripheral Device)");
-  Serial.println(" ");
+    Serial.println("Nano 33 BLE (Peripheral Device)");
+    Serial.println(" ");
 }
 
 void loop() {
@@ -73,57 +70,14 @@ void loop() {
     Serial.println(" ");
 
     while (central.connected()) {
-      if (gestureCharacteristic.written()) {
-         gesture = gestureCharacteristic.value();
-         writeGesture(gesture);
-       }
+        // Change this into running the model
+    //   if (gestureCharacteristic.written()) {
+    //      gesture = gestureCharacteristic.value();
+    //      writeGesture(gesture);
+    //    }
     }
     
     Serial.println("* Disconnected to central device!");
   }
 }
 
-void writeGesture(int gesture) {
-  Serial.println("- Characteristic <gesture_type> has changed!");
-  
-   switch (gesture) {
-      case GESTURE_UP:
-        Serial.println("* Actual value: UP (red LED on)");
-        Serial.println(" ");
-        digitalWrite(LEDR, LOW);
-        digitalWrite(LEDG, HIGH);
-        digitalWrite(LEDB, HIGH);
-        digitalWrite(LED_BUILTIN, LOW);
-        break;
-      case GESTURE_DOWN:
-        Serial.println("* Actual value: DOWN (green LED on)");
-        Serial.println(" ");
-        digitalWrite(LEDR, HIGH);
-        digitalWrite(LEDG, LOW);
-        digitalWrite(LEDB, HIGH);
-        digitalWrite(LED_BUILTIN, LOW);
-        break;
-      case GESTURE_LEFT:
-        Serial.println("* Actual value: LEFT (blue LED on)");
-        Serial.println(" ");
-        digitalWrite(LEDR, HIGH);
-        digitalWrite(LEDG, HIGH);
-        digitalWrite(LEDB, LOW);
-        digitalWrite(LED_BUILTIN, LOW);
-        break;
-      case GESTURE_RIGHT:
-        Serial.println("* Actual value: RIGHT (built-in LED on)");
-        Serial.println(" ");
-        digitalWrite(LEDR, HIGH);
-        digitalWrite(LEDG, HIGH);
-        digitalWrite(LEDB, HIGH);
-        digitalWrite(LED_BUILTIN, HIGH);
-        break;
-      default:
-        digitalWrite(LEDR, HIGH);
-        digitalWrite(LEDG, HIGH);
-        digitalWrite(LEDB, HIGH);
-        digitalWrite(LED_BUILTIN, LOW);
-        break;
-    }      
-}

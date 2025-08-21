@@ -8,6 +8,8 @@ Sensor libraries needed:
 
 #include <Arduino_LPS22HB.h>
 
+#include <Arduino_APDS9960.h>
+
 Sensors:
 Gesture / Proximity: APDS9960
 Microphone: MP34DT06JTR

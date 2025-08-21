@@ -19,29 +19,31 @@
 const char* deviceServiceUuid = "19b10000-e8f2-537e-4f6c-d104768a1812"; 
 const char* deviceServiceCharacteristicUuid = "19b10001-e8f2-537e-4f6c-d104768a1812"; 
 
-int gesture = -1;
+// Variables to send
+float[7] predictions;
 int oldGestureValue = -1;   
 
 void setup() {
-  Serial.begin(9600);
-  while (!Serial);
-  
-  if (!APDS.begin()) {
-    Serial.println("* Error initializing APDS9960 sensor!");
-  } 
+    Serial.begin(9600);
+    while (!Serial);
 
-  APDS.setGestureSensitivity(80); 
-  
-  if (!BLE.begin()) {
-    Serial.println("* Starting Bluetooth® Low Energy module failed!");
-    while (1);
-  }
-  
-  BLE.setLocalName("Nano 33 BLE (Central)"); 
-  BLE.advertise();
+    // --- LPS22HB ---
+    if (!BARO.begin()) {
+        Serial.println("LPS22HB NOT found!");
+    }
 
-  Serial.println("Arduino Nano 33 BLE Sense (Central Device)");
-  Serial.println(" ");
+    // --- APDS ---
+    if (!APDS.begin()) {
+        Serial.println("Error initializing APDS9960 sensor!");
+    }
+
+    Serial.println("MicAmp,Ax,Ay,Az,TempHS,HumHS,TempBaro,Pressure, gestures");
+  
+    BLE.setLocalName("Nano 33 BLE (Central)"); 
+    BLE.advertise();
+
+    Serial.println("Arduino Nano 33 BLE Sense (Central Device)");
+    Serial.println(" ");
 }
 
 void loop() {

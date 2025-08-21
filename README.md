@@ -8,3 +8,8 @@ Sensor libraries needed:
 
 #include <Arduino_LPS22HB.h>
 
+Sensors:
+Gesture / Proximity: APDS9960
+Microphone: MP34DT06JTR
+Temperature + Humidity: HS3003
+Barometric: LPS22HB
